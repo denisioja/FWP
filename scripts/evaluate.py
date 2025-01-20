@@ -78,26 +78,3 @@ if __name__ == "__main__":
     print(f"Input: {input_text}")
     print(f"Target: {target_char}")
     print(f"Predicted: {predicted_char}")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    
