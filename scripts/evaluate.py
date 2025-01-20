@@ -16,10 +16,10 @@ from train import ShakespeareDataset, FastWeightsModel
 
 if __name__ == "__main__":
     # Load tokenizer and validation data
-    with open("../data/preprocessed/tokenizer.pkl", "rb") as f:
+    with open("../data/processed/tokenizer.pkl", "rb") as f:
         tokenizer = pickle.load(f)
 
-    with open("../data/preprocessed/sequences.pkl", "rb") as f:
+    with open("../data/processed/sequences.pkl", "rb") as f:
         data = pickle.load(f)
 
     char_to_idx = tokenizer["char_to_idx"]
@@ -33,7 +33,7 @@ if __name__ == "__main__":
     seq_length = 100
 
     # Create dataset and DataLoader for evaluation
-    dataset = ShakespeateDataset(input_seqs, output_seqs)
+    dataset = ShakespeareDataset(input_seqs, output_seqs)
     dataloader = DataLoader(dataset, batch_size=64, shuffle=False)
 
     # Load model
@@ -54,8 +54,8 @@ if __name__ == "__main__":
             total_loss += loss.item() * inputs.size(0)
 
             # Calculate accuracy
-            predicitions = torch.argmax(outputs, dim = 1)
-            total_correct += (predicitions == targets).sum().item()
+            predictions = torch.argmax(outputs, dim=1)
+            total_correct += (predictions == targets).sum().item()
             total_samples += targets.size(0)
 
     avg_loss = total_loss / total_samples
@@ -66,18 +66,19 @@ if __name__ == "__main__":
 
     # Example Predictions
     print("\nSample Predictions:")
-    sample_inputs = input_seqs[0]
+    sample_input = input_seqs[0]
     sample_target = output_seqs[0]
-    sample_input_tensor = torch.tensor(sample_inputs, dtype=torch.long).unsqueeze(0)
+    sample_input_tensor = torch.tensor(sample_input, dtype=torch.long).unsqueeze(0)
 
     output = model(sample_input_tensor)
-    predicted_char = idx_to_char[torch.argmax(output, dim = 1).item()]
+    predicted_char = idx_to_char[torch.argmax(output, dim=1).item()]
     input_text = ''.join([idx_to_char[idx] for idx in sample_input])
     target_char = idx_to_char[sample_target]
 
     print(f"Input: {input_text}")
     print(f"Target: {target_char}")
     print(f"Predicted: {predicted_char}")
+
 
 
 

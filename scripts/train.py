@@ -20,45 +20,46 @@ from torch.utils.data import DataLoader, Dataset
 
 # Custom Dataset
 class ShakespeareDataset(Dataset):
-    def __init__(slef, inputs, outputs):
+    def __init__(self, inputs, outputs):
         self.inputs = inputs
         self.outputs = outputs
 
     def __len__(self):
         return len(self.inputs)
-    
+
     def __getitem__(self, idx):
-        return torch.tensor(self.inputs[idx], dtype=torch.long), torch.tensor(self.outputs[idx], dtype=toch.long)
-    
+        return torch.tensor(self.inputs[idx], dtype=torch.long), torch.tensor(self.outputs[idx], dtype=torch.long)
+
 # Fast Weights Model
 class FastWeightsModel(nn.Module):
     def __init__(self, vocab_size, embed_dim, hidden_dim, seq_length):
         super(FastWeightsModel, self).__init__()
         self.embedding = nn.Embedding(vocab_size, embed_dim)
         self.controller = nn.Linear(embed_dim * seq_length, hidden_dim)
-        self.fast_weights = nn.Linear(hidden_dim, vocab_size)
+        self.fast_weights = nn.Parameter(torch.zeros(hidden_dim, hidden_dim))
+        self.output_layer = nn.Linear(hidden_dim, vocab_size)
 
     def forward(self, x):
-        embed = self.embedding(x).view(x-size(0), -1) # Flatten sequence into one vector
+        embed = self.embedding(x).view(x.size(0), -1)  # Flatten sequence into one vector
         update = self.controller(embed)
         self.fast_weights = self.fast_weights + torch.outer(update, update)
-        output = torch.matmult(self.fast_weights, update.unsqueeze(1).squeeze(1))
+        output = torch.matmul(self.fast_weights, update.unsqueeze(1)).squeeze(1)
         return self.output_layer(output)
-    
+
 if __name__ == "__main__":
     # Load preprocessed data
     with open("../data/processed/tokenizer.pkl", "rb") as f:
         tokenizer = pickle.load(f)
 
-    with open("../data/preprocessed/sequences.pkl", "rb") as f:
+    with open("../data/processed/sequences.pkl", "rb") as f:
         data = pickle.load(f)
 
     char_to_idx = tokenizer["char_to_idx"]
     idx_to_char = tokenizer["idx_to_char"]
     input_seqs, output_seqs = data["inputs"], data["outputs"]
 
-    #Hyperparameters
-    vocab_size = len(char_to_idk)
+    # Hyperparameters
+    vocab_size = len(char_to_idx)
     embed_dim = 64
     hidden_dim = 128
     seq_length = 100
@@ -75,7 +76,7 @@ if __name__ == "__main__":
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=lr)
 
-    # Training loop
+    # Training Loop
     model.train()
     for epoch in range(epochs):
         epoch_loss = 0

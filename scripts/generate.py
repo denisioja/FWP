@@ -37,7 +37,7 @@ if __name__ == "__main__":
     generate_length = 500
 
     # Generate text
-    input_seqence = [char_to_idx[char] for char in seed_text if char in char_to_idx]
+    input_sequence = [char_to_idx[char] for char in seed_text if char in char_to_idx]
     input_tensor = torch.tensor(input_sequence, dtype=torch.long).unsqueeze(0)
 
     generated_text = seed_text
@@ -47,14 +47,14 @@ if __name__ == "__main__":
             output = model(input_tensor)
             predicted_idx = torch.argmax(output[:, -1, :], dim=1).item()
 
-            # Append predicted character 
+            # Append predicted character
             generated_text += idx_to_char[predicted_idx]
 
             # Update input sequence
             input_sequence = input_sequence[1:] + [predicted_idx]
             input_tensor = torch.tensor([input_sequence], dtype=torch.long)
 
-    print("Generated Text: ")
+    print("Generated Text:")
     print(generated_text)
 
     # Save to file
