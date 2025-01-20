@@ -34,7 +34,7 @@ def create_sequences(text: str, seq_length: int, char_to_idx: Dict[str, int]):
 
 if __name__ == "__main__":
     # Load data
-    raw_text = load_text("../data/shakespeare.txt")
+    raw_text = load_text("C:/Users/Denis/Desktop/FWP/data/shakespeare.txt")
 
     # Tokenize
     char_to_idx = tokenize_text(raw_text)

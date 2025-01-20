@@ -34,7 +34,7 @@ if __name__ == "__main__":
 
     # Text generation parameters
     seed_text = "To be, or not to be, that is the question: "
-    generate_length = 500
+    generate_length = 50
 
     # Generate text
     input_sequence = [char_to_idx[char] for char in seed_text if char in char_to_idx]
