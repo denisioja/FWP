@@ -15,7 +15,7 @@ from train import FastWeightsModel
 
 if __name__ == "__main__":
     # Load tokenizer
-    with open("../data/processed/tokenizer.pkl", "rb") as f:
+    with open("C:/Users/Denis/Desktop/FWP/data/processed/tokenizer.pkl", "rb") as f:
         tokenizer = pickle.load(f)
 
     char_to_idx = tokenizer["char_to_idx"]
@@ -29,37 +29,38 @@ if __name__ == "__main__":
 
     # Load model
     model = FastWeightsModel(vocab_size, embed_dim, hidden_dim, seq_length)
-    model.load_state_dict(torch.load("../models/fast_weights_model.pth"))
+    model.load_state_dict(torch.load("C:/Users/Denis/Desktop/FWP/models/fast_weights_model.pth", weights_only=True))
     model.eval()
 
     # Text generation parameters
     seed_text = "To be, or not to be, that is the question: "
-    generate_length = 50
+    generate_length = 100
 
     # Generate text
     input_sequence = [char_to_idx[char] for char in seed_text if char in char_to_idx]
-    input_tensor = torch.tensor(input_sequence, dtype=torch.long).unsqueeze(0)
+    input_tensor = torch.tensor([input_sequence[-seq_length:]], dtype=torch.long)
 
     generated_text = seed_text
 
     with torch.no_grad():
         for _ in range(generate_length):
             output = model(input_tensor)
-            predicted_idx = torch.argmax(output[:, -1, :], dim=1).item()
+            predicted_idx = torch.argmax(output, dim=1).item()
 
             # Append predicted character
             generated_text += idx_to_char[predicted_idx]
 
             # Update input sequence
-            input_sequence = input_sequence[1:] + [predicted_idx]
-            input_tensor = torch.tensor([input_sequence], dtype=torch.long)
+            input_sequence.append(predicted_idx)
+            input_tensor = torch.tensor([input_sequence[-seq_length:]], dtype=torch.long)
 
     print("Generated Text:")
     print(generated_text)
 
     # Save to file
-    with open("../output/generated_text.txt", "w") as f:
+    with open("C:/Users/Denis/Desktop/FWP/output/generated_text.txt", "w") as f:
         f.write(generated_text)
+
 
 
 

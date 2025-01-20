@@ -16,10 +16,10 @@ from train import ShakespeareDataset, FastWeightsModel
 
 if __name__ == "__main__":
     # Load tokenizer and validation data
-    with open("../data/processed/tokenizer.pkl", "rb") as f:
+    with open("C:/Users/Denis/Desktop/FWP/data/processed/tokenizer.pkl", "rb") as f:
         tokenizer = pickle.load(f)
 
-    with open("../data/processed/sequences.pkl", "rb") as f:
+    with open("C:/Users/Denis/Desktop/FWP/data/processed/sequences.pkl", "rb") as f:
         data = pickle.load(f)
 
     char_to_idx = tokenizer["char_to_idx"]
@@ -38,7 +38,7 @@ if __name__ == "__main__":
 
     # Load model
     model = FastWeightsModel(vocab_size, embed_dim, hidden_dim, seq_length)
-    model.load_state_dict(torch.load("../models/fast_weights_model.pth"))
+    model.load_state_dict(torch.load("C:/Users/Denis/Desktop/FWP/models/fast_weights_model.pth", weights_only=True))
     model.eval()
 
     # Evaluation

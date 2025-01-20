@@ -45,10 +45,10 @@ if __name__ == "__main__":
     input_seqs, output_seqs = create_sequences(raw_text, seq_length, char_to_idx)
 
     # Save processed data
-    os.makedirs("../data/processed", exist_ok=True)
-    with open("../data/processed/tokenizer.pkl", "wb") as f:
+    os.makedirs("C:/Users/Denis/Desktop/FWP/data/processed", exist_ok=True)
+    with open("C:/Users/Denis/Desktop/FWP/data/processed/tokenizer.pkl", "wb") as f:
         pickle.dump({"char_to_idx": char_to_idx, "idx_to_char": idx_to_char}, f)
-    with open("../data/processed/sequences.pkl", "wb") as f:
+    with open("C:/Users/Denis/Desktop/FWP/data/processed/sequences.pkl", "wb") as f:
         pickle.dump({"inputs": input_seqs, "outputs": output_seqs}, f)
 
 

@@ -29,29 +29,81 @@ class ShakespeareDataset(Dataset):
 
     def __getitem__(self, idx):
         return torch.tensor(self.inputs[idx], dtype=torch.long), torch.tensor(self.outputs[idx], dtype=torch.long)
+# 1
+# # Fast Weights Model
+# class FastWeightsModel(nn.Module):
+#     def __init__(self, vocab_size, embed_dim, hidden_dim, seq_length):
+#         super(FastWeightsModel, self).__init__()
+#         self.embedding = nn.Embedding(vocab_size, embed_dim)
+#         self.controller = nn.Linear(embed_dim * seq_length, hidden_dim)
+#         self.fast_weights = nn.Parameter(torch.zeros(hidden_dim, hidden_dim))
+#         self.transform = nn.Linear(seq_length * embed_dim, hidden_dim)
+#         self.output_layer = nn.Linear(hidden_dim, vocab_size)
 
-# Fast Weights Model
+#     def forward(self, x):
+#         # Embedding: (batch_size, seq_length, embedding_dim) -> (batch_size, seq_length * embedding_dim)
+#         embed = self.embedding(x).view(x.size(0), -1)
+#         transformed_embed = self.transform(embed)  # Transform to hidden_dim
+
+#         # Controller: Produces update vector with the same dimension as the hidden_dim
+#         update = self.controller(embed)  # (batch_size, hidden_dim)
+
+#         # Debug: Ensure dimensions match
+#         print(f"Embed size: {embed.shape}, Transformed Embed size: {transformed_embed.shape}, Update size: {update.shape}")
+
+#         # Outer product: Compute the fast weight updates (adjusting to square matrices)
+#         flattened_update = update.view(-1, update.size(1))  # Ensure correct shape for outer product
+#         updated_fast_weights = self.fast_weights + torch.bmm(flattened_update.unsqueeze(2), flattened_update.unsqueeze(1)).mean(0)
+        
+#         # Update the fast weights
+#         self.fast_weights = nn.Parameter(updated_fast_weights)
+
+#         # Fast network: Apply updated fast weights for predictions
+#         output = torch.matmul(transformed_embed, self.fast_weights)  # (batch_size, hidden_dim)
+#         output = self.output_layer(output)  # Final linear transformation
+
+#         return output
+
+# 2
 class FastWeightsModel(nn.Module):
-    def __init__(self, vocab_size, embed_dim, hidden_dim, seq_length):
+    def __init__(self, vocab_size, embed_dim, hidden_dim, max_seq_length):
         super(FastWeightsModel, self).__init__()
         self.embedding = nn.Embedding(vocab_size, embed_dim)
-        self.controller = nn.Linear(embed_dim * seq_length, hidden_dim)
+        self.controller = nn.Linear(embed_dim * max_seq_length, hidden_dim)
         self.fast_weights = nn.Parameter(torch.zeros(hidden_dim, hidden_dim))
+        self.transform = nn.Linear(max_seq_length * embed_dim, hidden_dim)
         self.output_layer = nn.Linear(hidden_dim, vocab_size)
+        self.max_seq_length = max_seq_length
 
     def forward(self, x):
-        embed = self.embedding(x).view(x.size(0), -1)  # Flatten sequence into one vector
+        # Embedding: (batch_size, seq_length, embedding_dim) -> (batch_size, seq_length * embedding_dim)
+        embed = self.embedding(x)
+        embed = embed.view(x.size(0), -1)
+
+        # Controller: Produces update vector with the same dimension as the hidden_dim
         update = self.controller(embed)
-        self.fast_weights = self.fast_weights + torch.outer(update, update)
-        output = torch.matmul(self.fast_weights, update.unsqueeze(1)).squeeze(1)
-        return self.output_layer(output)
+
+        # Outer product: Compute the fast weight updates
+        flattened_update = update.view(-1, update.size(1))
+        updated_fast_weights = self.fast_weights + torch.bmm(flattened_update.unsqueeze(2), flattened_update.unsqueeze(1)).mean(0)
+
+        # Update the fast weights
+        self.fast_weights = nn.Parameter(updated_fast_weights)
+
+        # Fast network: Apply updated fast weights for predictions
+        transformed_embed = self.transform(embed)
+        output = torch.matmul(transformed_embed, self.fast_weights)
+        output = self.output_layer(output)
+
+        return output
+
 
 if __name__ == "__main__":
     # Load preprocessed data
-    with open("../data/processed/tokenizer.pkl", "rb") as f:
+    with open("C:/Users/Denis/Desktop/FWP/data/processed/tokenizer.pkl", "rb") as f:
         tokenizer = pickle.load(f)
 
-    with open("../data/processed/sequences.pkl", "rb") as f:
+    with open("C:/Users/Denis/Desktop/FWP/data/processed/sequences.pkl", "rb") as f:
         data = pickle.load(f)
 
     char_to_idx = tokenizer["char_to_idx"]
@@ -91,8 +143,8 @@ if __name__ == "__main__":
         print(f"Epoch {epoch + 1}/{epochs}, Loss: {epoch_loss / len(dataloader):.4f}")
 
     # Save Model
-    os.makedirs("../models", exist_ok=True)
-    torch.save(model.state_dict(), "../models/fast_weights_model.pth")
+    os.makedirs("C:/Users/Denis/Desktop/FWP/models", exist_ok=True)
+    torch.save(model.state_dict(), "C:/Users/Denis/Desktop/FWP/models/fast_weights_model.pth")
 
 
 
