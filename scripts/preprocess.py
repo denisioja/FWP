@@ -41,7 +41,7 @@ if __name__ == "__main__":
     idx_to_char = {idx: char for char, idx in char_to_idx.items()}
 
     # Create sequences
-    seq_length = 100
+    seq_length = 200 # Modified based on the parameter in config.py
     input_seqs, output_seqs = create_sequences(raw_text, seq_length, char_to_idx)
 
     # Save processed data
@@ -50,23 +50,3 @@ if __name__ == "__main__":
         pickle.dump({"char_to_idx": char_to_idx, "idx_to_char": idx_to_char}, f)
     with open("C:/Users/Denis/Desktop/FWP/data/processed/sequences.pkl", "wb") as f:
         pickle.dump({"inputs": input_seqs, "outputs": output_seqs}, f)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
