@@ -26,6 +26,12 @@ if __name__ == "__main__":
 
     # Text generation parameters
     seed_text = "To be, or not to be, that is the question: "
+    # More seed texts to try
+    # seed_text = "Now is the winter of our discontent"
+    # seed_text ="All the world's a stage"
+    # seed_text ="This above all: to thine own self be true"
+    # seed_text ="The fool doth think he is wise, but the wise man knows himself to be a fool"
+    # seed_text ="Love all, trust a few, do wrong to none"
 
     # Generate text
     input_sequence = [char_to_idx[char] for char in seed_text if char in char_to_idx]
